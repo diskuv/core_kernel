@@ -4,14 +4,27 @@
 
 set -e
 
-if ld -lm -shared --wrap caml_modify -o /dev/null 2>/dev/null; then
-    ld_wrap_possible=true
-else
-    ld_wrap_possible=false
-fi
 
-ptimer=`getconf _POSIX_TIMERS || echo undefined`
-case $ptimer in
+system="$( ocamlfind ocamlc -config | awk '/^system:/ {print $2}')"
+case "$system" in
+    win*)
+        ld_wrap_possible=false
+        posix_timers_possible=false
+        ;;
+    mingw*)
+        ld_wrap_possible=false
+        posix_timers_possible=false
+        ;;
+    *)
+
+        if ld -lm -shared --wrap caml_modify -o /dev/null 2>/dev/null; then
+    ld_wrap_possible=true
+        else
+    ld_wrap_possible=false
+        fi
+
+        ptimer=`getconf _POSIX_TIMERS || echo undefined`
+        case $ptimer in
     undefined)
         posix_timers_possible=false
         ;;
@@ -22,7 +35,8 @@ case $ptimer in
             posix_timers_possible=false
         fi
         ;;
-esac
+        esac
+        ;;
 
 if [ -e setup.data ]; then
     sed '/^\(ld_wrap\|posix_timers\)_possible=/d' setup.data > setup.data.new
