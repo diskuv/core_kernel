@@ -1595,7 +1595,9 @@ module Base = struct
         | Arg.Tuple _ ->
           failwith "Arg.Tuple is not supported by Command.Spec.flags_of_args_exn"
         | ((Arg.Expand _)[@if ocaml_version >= (4, 05, 0)]) ->
-          failwith "Arg.Expand is not supported by Command.Spec.flags_of_args_exn")
+          failwith "Arg.Expand is not supported by Command.Spec.flags_of_args_exn"
+        | ((Arg.Rest_all _)[@if ocaml_version >= (4, 12, 0)]) ->
+          failwith "Arg.Rest_all is not supported by Command.Spec.flags_of_args_exn")
     ;;
 
     module Deprecated = struct
